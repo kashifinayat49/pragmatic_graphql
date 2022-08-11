@@ -39,13 +39,6 @@ defmodule Getaways.Vacation do
     Repo.all(Place)
   end
 
-  def bookings_for_place(%Place{} = place) do
-    Booking
-    |> where(place_id: ^place.id)
-    |> where(state: "reserved")
-    |> Repo.all()
-  end
-
   @doc """
   Gets a single place.
 
@@ -317,5 +310,22 @@ defmodule Getaways.Vacation do
   """
   def change_review(%Review{} = review, attrs \\ %{}) do
     Review.changeset(review, attrs)
+  end
+
+  # Dataloader
+
+  def datasource() do
+    Dataloader.Ecto.new(Repo, query: &query/2)
+  end
+
+  def query(Booking, %{scope: :place, limit: limit}) do
+    Booking
+    |> where(state: "reserved")
+    |> order_by(desc: :start_date)
+    |> limit(^limit)
+  end
+
+  def query(queryable, _) do
+    queryable
   end
 end
