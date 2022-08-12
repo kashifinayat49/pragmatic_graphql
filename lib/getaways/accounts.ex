@@ -103,7 +103,7 @@ defmodule Getaways.Accounts do
   end
 
   def authenticate(username, password) do
-    user = Repo.get_by!(:username, username)
+    user = Repo.get_by!(User, username: username)
 
     with %{password_hash: password_hash} <- user,
          true <- Pbkdf2.verify_pass(password, password_hash) do
