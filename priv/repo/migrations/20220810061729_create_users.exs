@@ -9,6 +9,7 @@ defmodule Getaways.Repo.Migrations.CreateUsers do
 
       timestamps()
     end
+
     create unique_index(:users, [:username, :email])
   end
 end

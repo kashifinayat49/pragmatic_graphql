@@ -52,6 +52,7 @@ defmodule Getaways.MixProject do
       {:plug_cowboy, "~> 2.5"},
       {:absinthe, "~> 1.4"},
       {:absinthe_plug, "~> 1.4"},
+      {:absinthe_phoenix, "~> 2.0.0"},
       {:pbkdf2_elixir, "~> 1.0"},
       {:cors_plug, "~> 2.0"},
       {:dataloader, "~> 1.0.6"}

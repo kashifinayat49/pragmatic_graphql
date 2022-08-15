@@ -7,6 +7,8 @@ defmodule Getaways.Application do
 
   @impl true
   def start(_type, _args) do
+    import Supervisor.Spec
+
     children = [
       # Start the Ecto repository
       Getaways.Repo,
@@ -15,7 +17,8 @@ defmodule Getaways.Application do
       # Start the PubSub system
       {Phoenix.PubSub, name: Getaways.PubSub},
       # Start the Endpoint (http/https)
-      GetawaysWeb.Endpoint
+      GetawaysWeb.Endpoint,
+      supervisor(Absinthe.Subscription, [GetawaysWeb.Endpoint])
       # Start a worker by calling: Getaways.Worker.start_link(arg)
       # {Getaways.Worker, arg}
     ]

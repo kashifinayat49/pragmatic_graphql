@@ -3,6 +3,7 @@ defmodule GetawaysWeb.Schema.Schema do
 
   alias GetawaysWeb.Resolvers
   alias Getaways.{Vacation, Accounts}
+  alias GetawaysWeb.Schema.Middleware
   import_types(Absinthe.Type.Custom)
   import Absinthe.Resolution.Helpers, only: [dataloader: 1, dataloader: 3]
 
@@ -23,6 +24,11 @@ defmodule GetawaysWeb.Schema.Schema do
     field :users, list_of(:user) do
       resolve(&Resolvers.Accounts.users/3)
     end
+
+    @desc "Get a sign in user"
+    field :user, :user do
+      resolve(&Resolvers.Accounts.user/3)
+    end
   end
 
   mutation do
@@ -31,12 +37,14 @@ defmodule GetawaysWeb.Schema.Schema do
       arg(:place_id, non_null(:id))
       arg(:end_date, non_null(:date))
       arg(:start_date, non_null(:date))
+      middleware(Middleware.Authenticate)
       resolve(&Resolvers.Vacation.create_booking/3)
     end
 
     @desc "Cancel a booking"
     field :cancel_booking, :booking do
       arg(:booking_id, non_null(:id))
+      middleware(Middleware.Authenticate)
       resolve(&Resolvers.Vacation.cancel_booking/3)
     end
 
@@ -45,6 +53,7 @@ defmodule GetawaysWeb.Schema.Schema do
       arg(:place_id, non_null(:id))
       arg(:comment, :string)
       arg(:rating, non_null(:integer))
+      middleware(Middleware.Authenticate)
       resolve(&Resolvers.Vacation.create_review/3)
     end
 
@@ -61,6 +70,14 @@ defmodule GetawaysWeb.Schema.Schema do
       arg(:username, non_null(:string))
       arg(:password, non_null(:string))
       resolve(&Resolvers.Accounts.signin/3)
+    end
+  end
+
+  subscription do
+    @desc "Subscription a booking change for a place ID"
+    field :booking_change, :booking do
+      arg(:place_id, non_null(:id))
+      config(fn args, _res -> {:ok, topic: args.place_id} end)
     end
   end
 
@@ -118,8 +135,6 @@ defmodule GetawaysWeb.Schema.Schema do
   end
 
   def context(ctx) do
-    ctx = Map.put(ctx, :current_user, Accounts.get_user!(1))
-
     loader =
       Dataloader.new()
       |> Dataloader.add_source(Vacation, Vacation.datasource())

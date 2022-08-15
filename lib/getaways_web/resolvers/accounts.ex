@@ -5,6 +5,14 @@ defmodule GetawaysWeb.Resolvers.Accounts do
     {:ok, Getaways.Accounts.list_users()}
   end
 
+  def user(_, _, %{context: %{current_user: user}}) do
+    {:ok, user}
+  end
+
+  def user(_, _, _) do
+    {:ok, nil}
+  end
+
   def signup(_, args, _) do
     case Getaways.Accounts.create_user(args) do
       {:ok, user} ->

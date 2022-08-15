@@ -3,6 +3,7 @@ defmodule GetawaysWeb.Router do
 
   pipeline :api do
     plug :accepts, ["json"]
+    plug GetawaysWeb.Plugs.SetCurrentUser
   end
 
   scope "/" do
@@ -12,6 +13,6 @@ defmodule GetawaysWeb.Router do
 
     forward "/graphql", Absinthe.Plug.GraphiQL,
       schema: GetawaysWeb.Schema.Schema,
-      interface: :simple
+      socket: GetawaysWeb.UserSocket
   end
 end
